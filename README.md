@@ -16,7 +16,7 @@ $(command -v repmgrd) -f repmgr.conf --daemonize=true
 docker-compose exec -u postgres node_2 bash
 repmgr -h node_1 -U repmgr -d repmgr -f repmgr.conf standby clone -F &&\
 pg_ctl start &&\
-repmgr -f repmgr.conf standby register &&\
+repmgr -f repmgr.conf standby register -F &&\
 $(command -v repmgrd) -f repmgr.conf --daemonize=true
 ```
 
@@ -26,7 +26,7 @@ $(command -v repmgrd) -f repmgr.conf --daemonize=true
 docker-compose exec -u postgres node_3 bash
 repmgr -h node_1 -U repmgr -d repmgr -f repmgr.conf standby clone -F &&\
 pg_ctl start &&\
-repmgr -f repmgr.conf standby register &&\
+repmgr -f repmgr.conf standby register -F &&\
 $(command -v repmgrd) -f repmgr.conf --daemonize=true
 ```
 

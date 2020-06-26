@@ -1,0 +1,101 @@
+version: "3.3"
+services:
+  node_1:
+    hostname: node_1
+    build: ./
+    image: postgres-repmgr
+    restart: unless-stopped
+    environment:
+      POSTGRES_PASSWORD: Pa55w0rd!
+      REPMGR_NODE_ID: "1"
+    working_dir: /etc/repmgr
+    volumes:
+      - './:/src'
+      - 'node_1_data:/var/lib/postgresql/data'
+    ports:
+      - "5432:5432"
+    entrypoint: ["sh","-c"]
+    command: 
+      - |-
+        envsubst < /src/repmgr-node.conf > /etc/repmgr/repmgr.conf
+        su - postgres -c "/usr/lib/postgresql/11/bin/pg_ctl -D /var/lib/postgresql/data start"
+        sleep 1
+        su - postgres -c "/usr/bin/repmgrd -f /etc/repmgr/repmgr.conf --daemonize=true"
+        sleep infinity
+
+  node_2:
+    hostname: node_2
+    build: ./
+    image: postgres-repmgr
+    restart: unless-stopped
+    environment:
+      POSTGRES_PASSWORD: Pa55w0rd!
+      REPMGR_NODE_ID: "2"
+    working_dir: /etc/repmgr
+    volumes:
+      - './:/src'
+      - 'node_2_data:/var/lib/postgresql/data'
+    ports:
+      - "5433:5432"
+    entrypoint: ["sh","-c"]
+    command: 
+      - |-
+        cp /src/pg_hba.conf /var/lib/postgresql/data/pg_hba.conf
+        envsubst < /src/repmgr-node.conf > /etc/repmgr/repmgr.conf
+        su - postgres -c "/usr/lib/postgresql/11/bin/pg_ctl -D /var/lib/postgresql/data start"
+        sleep 1
+        su - postgres -c "/usr/bin/repmgrd -f /etc/repmgr/repmgr.conf --daemonize=true"
+        sleep infinity
+
+  node_3:
+    hostname: node_3
+    build: ./
+    image: postgres-repmgr
+    restart: unless-stopped
+    environment:
+      POSTGRES_PASSWORD: Pa55w0rd!
+      REPMGR_NODE_ID: "3"
+    working_dir: /etc/repmgr
+    volumes:
+      - './:/src'
+      - 'node_3_data:/var/lib/postgresql/data'
+    ports:
+      - "5434:5432"
+    entrypoint: ["sh","-c"]
+    command: 
+      - |-
+        envsubst < /src/repmgr-node.conf > /etc/repmgr/repmgr.conf
+        su - postgres -c "/usr/lib/postgresql/11/bin/pg_ctl -D /var/lib/postgresql/data start"
+        sleep 1
+        su - postgres -c "/usr/bin/repmgrd -f /etc/repmgr/repmgr.conf --daemonize=true"
+        sleep infinity
+
+  witness:
+    hostname: witness
+    build: ./
+    image: postgres-repmgr
+    restart: unless-stopped
+    environment:
+      POSTGRES_PASSWORD: Pa55w0rd!
+      REPMGR_NODE_ID: "99"
+    working_dir: /etc/repmgr
+    volumes:
+      - './:/src'
+      - 'witness_data:/var/lib/postgresql/data'
+    ports:
+      - "5432"
+    entrypoint: ["sh","-c"]
+    command: 
+      - |-
+        envsubst < /src/repmgr-witness.conf > /etc/repmgr/repmgr.conf
+        su - postgres -c "/usr/lib/postgresql/11/bin/pg_ctl -D /var/lib/postgresql/data start"
+        sleep 1
+        su - postgres -c "/usr/bin/repmgrd -f /etc/repmgr/repmgr.conf --daemonize=true"
+        sleep infinity
+
+volumes:
+  node_1_data:
+  node_2_data:
+  node_3_data:
+  witness_data:
+
